@@ -3,4 +3,4 @@ Flask-Login
 gspread
 oauth2client
 Werkzeug==2.3.7
-gunicorn-23.0.0
+gunicorn==21.2.0
