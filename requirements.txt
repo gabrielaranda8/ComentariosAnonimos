@@ -4,3 +4,4 @@ gspread
 oauth2client
 Werkzeug==2.3.7
 python-dotenv
+gunicorn-23.0.0
