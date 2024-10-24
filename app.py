@@ -4,13 +4,26 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import os
+import json
 
 # Obtener la ruta del archivo de credenciales desde una variable de entorno
-credentials_path = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_PATH')
 sheet_path = os.environ.get('SHEET_PATH')
 user_path = os.environ.get('USER')
 pass_path = os.environ.get('PASS')
 
+credentials_path = {
+  "type": "service_account",
+  "project_id": "comentariosanonimos",
+  "private_key_id": os.environ.get('PRIVATE_KEY_ID'),
+  "private_key": os.environ.get('PRIVATE_KEY'),
+  "client_email": os.environ.get('CLIENT_EMAIL'),
+  "client_id": os.environ.get('CLIENT_ID'),
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": os.environ.get('CERT_URL'),
+  "universe_domain": "googleapis.com"
+}
 
 
 app = Flask(__name__)
@@ -67,8 +80,8 @@ def save_comment_to_sheet(comment):
     # Autenticación y acceso a Google Sheets
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     # Autenticación y acceso a Google Sheets
-    creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
-    
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+
     client = gspread.authorize(creds)
 
     # Abrir la hoja de cálculo por ID (reemplaza "your_spreadsheet_id" por tu ID real)
