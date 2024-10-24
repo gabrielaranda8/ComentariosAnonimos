@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #6a5acd; /* Color púrpura */
+            border-radius: 10px;
+            padding: 20px;
+            padding-left: 40px; /* Padding a la izquierda */
+            width: 300px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px; /* Espacio entre el título y el formulario */
+        }
+        textarea {
+            width: calc(100% - 20px); /* Ajuste de ancho para incluir el padding */
+            padding: 15px; /* Espacio interno */
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
+            resize: none; /* Evita que el usuario cambie el tamaño */
+            height: 100px; /* Altura fija */
+        }
+        button {
+            width: 80%; /* Menos ancho que los campos de entrada */
+            padding: 10px;
+            background-color: #fff;
+            color: #6a5acd;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin: 10px auto; /* Centra el botón */
+            display: block; /* Asegura que el botón sea un bloque */
+            margin-left: 20px; /* Mover el botón hacia la derecha */
+        }
+        button:hover {
+            background-color: #e6e6e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Leave a Comment</h1>
+        <form method="POST" action="/comment">
+            <textarea name="comment" placeholder="Write your anonymous comment" required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
