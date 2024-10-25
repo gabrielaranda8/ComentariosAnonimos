@@ -59,7 +59,7 @@
         <h1>Enviar Denuncia</h1>
         <form method="POST" action="/comment">
             <!-- Fecha del Acto -->
-            <input type="date" name="fecha" required>
+            <input type="date" name="fecha" required max="" id="fecha">
 
             <!-- Sector -->
             <select name="sector" required>
@@ -85,5 +85,10 @@
             <button type="submit">Enviar Comentario</button>
         </form>
     </div>
+    <script>
+        // Configuración de la fecha máxima en el campo de fecha
+        document.getElementById('fecha').max = new Date().toISOString().split("T")[0];
+    </script>
 </body>
 </html>
+

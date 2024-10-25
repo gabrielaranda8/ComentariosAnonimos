@@ -26,6 +26,7 @@ credentials_path = {
 }
 
 
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -95,7 +96,7 @@ def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     sheet = client.open_by_key(sheet_path).sheet1
 
     # Inserta la denuncia en la siguiente fila disponible
-    sheet.append_row([fecha, sector, denunciado, telefono, email, detalle, datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle])
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
