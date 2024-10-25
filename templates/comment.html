@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comment</title>
+    <title>Denuncia</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
@@ -17,30 +17,27 @@
             margin: 0;
         }
         .container {
-            background-color: #6a5acd; /* Color púrpura */
+            background-color: #6a5acd;
             border-radius: 10px;
-            padding: 20px;
-            padding-left: 40px; /* Padding a la izquierda */
-            width: 300px;
+            padding: 20px 40px;
+            width: 320px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         h1 {
             color: #fff;
             text-align: center;
-            margin-bottom: 20px; /* Espacio entre el título y el formulario */
+            margin-bottom: 20px;
         }
-        textarea {
-            width: calc(100% - 20px); /* Ajuste de ancho para incluir el padding */
-            padding: 15px; /* Espacio interno */
+        input, textarea, select {
+            width: calc(100% - 20px);
+            padding: 10px;
             margin: 10px 0;
             border: none;
             border-radius: 5px;
-            box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
-            resize: none; /* Evita que el usuario cambie el tamaño */
-            height: 100px; /* Altura fija */
+            box-sizing: border-box;
         }
         button {
-            width: 80%; /* Menos ancho que los campos de entrada */
+            width: 80%;
             padding: 10px;
             background-color: #fff;
             color: #6a5acd;
@@ -49,9 +46,8 @@
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s;
-            margin: 10px auto; /* Centra el botón */
-            display: block; /* Asegura que el botón sea un bloque */
-            margin-left: 20px; /* Mover el botón hacia la derecha */
+            margin: 10px auto;
+            display: block;
         }
         button:hover {
             background-color: #e6e6e6;
@@ -60,11 +56,39 @@
 </head>
 <body>
     <div class="container">
-        <h1>Leave a Comment</h1>
+        <h1>Enviar Denuncia</h1>
         <form method="POST" action="/comment">
-            <textarea name="comment" placeholder="Write your anonymous comment" required></textarea>
-            <button type="submit">Submit</button>
+            <!-- Fecha del Acto -->
+            <input type="date" name="fecha" required max="" id="fecha">
+
+            <!-- Sector -->
+            <select name="sector" required>
+                <option value="">Seleccione un sector</option>
+                <option value="Sector 1">Contabilidad</option>
+                <option value="Sector 2">Administracion</option>
+                <option value="Sector 3">Compliance</option>
+                <option value="Sector 4">Ventas</option>
+                <option value="Sector 5">Direccion</option>
+            </select>
+
+            <!-- Denunciado -->
+            <input type="text" name="denunciado" placeholder="Denunciado" maxlength="20" required>
+
+            <!-- Contacto del Denunciante -->
+            <input type="tel" name="telefono" placeholder="Teléfono (Opcional)">
+            <input type="email" name="email" placeholder="Correo Electrónico (Opcional)">
+
+            <!-- Detalle de la Denuncia -->
+            <textarea name="detalle" placeholder="Detalle de la denuncia" required></textarea>
+
+            <!-- Botón Enviar -->
+            <button type="submit">Enviar Comentario</button>
         </form>
     </div>
+    <script>
+        // Configuración de la fecha máxima en el campo de fecha
+        document.getElementById('fecha').max = new Date().toISOString().split("T")[0];
+    </script>
 </body>
 </html>
+

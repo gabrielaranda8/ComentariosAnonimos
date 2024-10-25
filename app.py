@@ -26,6 +26,7 @@ credentials_path = {
 }
 
 
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -64,9 +65,18 @@ def login():
 @login_required
 def comment():
     if request.method == 'POST':
-        comment = request.form['comment']
-        save_comment_to_sheet(comment)
-        return 'Comment submitted successfully!'
+        # Recibe datos del formulario
+        fecha = request.form['fecha']
+        sector = request.form['sector']
+        denunciado = request.form['denunciado']
+        telefono = request.form.get('telefono', '')  # Campo opcional
+        email = request.form.get('email', '')        # Campo opcional
+        detalle = request.form['detalle']
+
+        # Inserta los datos en Google Sheets
+        save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle)
+
+        return 'Denuncia enviada con éxito.'
 
     return render_template('comment.html')
 
@@ -76,22 +86,17 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-def save_comment_to_sheet(comment):
+def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     # Autenticación y acceso a Google Sheets
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    # Autenticación y acceso a Google Sheets
     creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
-
     client = gspread.authorize(creds)
 
-    # Abrir la hoja de cálculo por ID (reemplaza "your_spreadsheet_id" por tu ID real)
+    # Abre la hoja de cálculo por ID
     sheet = client.open_by_key(sheet_path).sheet1
 
-    # Obtener la fecha y hora actual
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # Insertar el comentario y la fecha en la siguiente fila disponible
-    sheet.append_row([comment, timestamp])
+    # Inserta la denuncia en la siguiente fila disponible
+    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle])
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
