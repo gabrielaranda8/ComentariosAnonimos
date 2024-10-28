@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import xlsxwriter
+import pandas as pd
+import io
 import os
 import json
 
@@ -10,6 +13,9 @@ import json
 sheet_path = os.environ.get('SHEET_PATH')
 user_path = os.environ.get('USER')
 pass_path = os.environ.get('PASS')
+user_rrhh_path = os.environ.get('USER_RRHH')
+pass_rrhh_path = os.environ.get('PASS_RRHH')
+
 
 credentials_path = {
   "type": "service_account",
@@ -33,8 +39,11 @@ app.secret_key = 'your_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# Usuarios de prueba (puedes añadir un sistema real de autenticación)
-users = {user_path: {'password': pass_path}}
+# Agregar segundo usuario en el diccionario
+users = {
+    user_path: {'password': pass_path},
+    user_rrhh_path: {'password': pass_rrhh_path}  # Usuario con acceso a la base de datos
+}
 
 # Clase de usuario para el manejo del login
 class User(UserMixin):
@@ -51,14 +60,20 @@ def user_loader(username):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    logout_user()  # Cierra la sesión activa, si hay una
     if request.method == 'POST':
         username = request.form['username']
-        if username in users and request.form['password'] == users[username]['password']:
+        password = request.form['password']
+        # Verifica si el usuario existe y la contraseña coincide
+        if username in users and users[username]['password'] == password:
             user = User()
             user.id = username
             login_user(user)
+            if username == 'rrhh':
+                return redirect(url_for('view_data'))
             return redirect(url_for('comment'))
-
+        else:
+            flash("Usuario o contraseña incorrectos. Intenta de nuevo.", "error")
     return render_template('login.html')
 
 @app.route('/comment', methods=['GET', 'POST'])
@@ -76,15 +91,62 @@ def comment():
         # Inserta los datos en Google Sheets
         save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle)
 
-        return 'Denuncia enviada con éxito.'
+        return redirect(url_for('success'))
 
     return render_template('comment.html')
 
 @app.route('/logout')
 @login_required
 def logout():
-    logout_user()
+    logout_user()  # Cierra la sesión actual
+    flash("Has cerrado sesión exitosamente.", "info")  # Mensaje de éxito
+    return redirect(url_for('login'))  # Redirige a la página de inicio de sesión
+
+@app.route('/success')
+def success():
+    return render_template('success.html')
+
+@app.route('/view_data')
+@login_required
+def view_data():
+    if current_user.id == 'rrhh':
+        data = get_all_data_from_sheet()
+        return render_template('view_data.html', data=data)
+    flash("Acceso no autorizado.", "error")
     return redirect(url_for('login'))
+
+@app.route('/download_excel')
+@login_required
+def download_excel():
+    if current_user.id != 'rrhh':
+        return redirect(url_for('login'))
+
+    # Obtiene los datos de Google Sheets
+    data = get_all_data_from_sheet()
+    
+    # Crea un DataFrame de pandas y convierte a Excel
+    df = pd.DataFrame(data)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Denuncias')
+    
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="denuncias.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+def get_all_data_from_sheet():
+    try:
+        # Conectarse y obtener datos de Google Sheets
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
+
+        # Obtener todos los registros con las columnas y filas completas
+        records = sheet.get_all_records(empty2zero=False, head=1)  # head=1 para incluir la primera fila como headers
+        return records
+    except Exception as e:
+        flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
+        return []
 
 def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     # Autenticación y acceso a Google Sheets
