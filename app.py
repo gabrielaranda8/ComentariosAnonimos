@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -13,6 +13,9 @@ import json
 sheet_path = os.environ.get('SHEET_PATH')
 user_path = os.environ.get('USER')
 pass_path = os.environ.get('PASS')
+user_rrhh_path = os.environ.get('USER_RRHH')
+pass_rrhh_path = os.environ.get('PASS_RRHH')
+
 
 credentials_path = {
   "type": "service_account",
@@ -39,7 +42,7 @@ login_manager.init_app(app)
 # Agregar segundo usuario en el diccionario
 users = {
     user_path: {'password': pass_path},
-    'rrhh': {'password': '1234'}  # Usuario con acceso a la base de datos
+    user_rrhh_path: {'password': pass_rrhh_path}  # Usuario con acceso a la base de datos
 }
 
 # Clase de usuario para el manejo del login
@@ -95,8 +98,9 @@ def comment():
 @app.route('/logout')
 @login_required
 def logout():
-    logout_user()
-    return redirect(url_for('login'))
+    logout_user()  # Cierra la sesión actual
+    flash("Has cerrado sesión exitosamente.", "info")  # Mensaje de éxito
+    return redirect(url_for('login'))  # Redirige a la página de inicio de sesión
 
 @app.route('/success')
 def success():
@@ -130,15 +134,19 @@ def download_excel():
     return send_file(output, as_attachment=True, download_name="denuncias.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 def get_all_data_from_sheet():
-    # Conectarse y obtener datos de Google Sheets
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
-    client = gspread.authorize(creds)
-    sheet = client.open_by_key(sheet_path).sheet1
+    try:
+        # Conectarse y obtener datos de Google Sheets
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
 
-    # Obtener todos los registros con las columnas y filas completas
-    records = sheet.get_all_records(empty2zero=False, head=1)  # head=1 para incluir la primera fila como headers
-    return records
+        # Obtener todos los registros con las columnas y filas completas
+        records = sheet.get_all_records(empty2zero=False, head=1)  # head=1 para incluir la primera fila como headers
+        return records
+    except Exception as e:
+        flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
+        return []
 
 def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     # Autenticación y acceso a Google Sheets
