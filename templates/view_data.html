@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Datos de Denuncias</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #6a5acd;
+            color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 80vh; /* Limita el alto del contenedor */
+            overflow: auto; /* Añade barra de desplazamiento si es necesario */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            color: #333; /* Color del texto de los datos */
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap; /* Mantiene texto en una sola línea */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Trunca texto largo con puntos suspensivos */
+            max-width: 200px; /* Limita el ancho de cada celda */
+        }
+        td {
+            white-space: normal; /* Permite salto de línea en celdas */
+            overflow-wrap: break-word; /* Ajusta palabras largas para que salten de línea */
+            color: #333; /* Color negro para texto en celdas de datos */
+        }
+        th {
+            background-color: #574b90;
+            color: #fff;
+        }
+        .no-data {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Datos de Denuncias</h1>
+        
+        {% if data %}
+            <table>
+                <thead>
+                    <tr>
+                        <!-- Renderiza todos los encabezados de las columnas -->
+                        {% for header in data[0].keys() %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Renderiza todas las filas de datos -->
+                    {% for row in data %}
+                    <tr>
+                        {% for cell in row.values() %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-data">No hay datos disponibles para mostrar.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
