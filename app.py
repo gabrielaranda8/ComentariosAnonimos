@@ -16,7 +16,6 @@ pass_path = os.environ.get('PASS')
 user_rrhh_path = os.environ.get('USER_RRHH')
 pass_rrhh_path = os.environ.get('PASS_RRHH')
 
-
 credentials_path = {
   "type": "service_account",
   "project_id": "comentariosanonimos",
@@ -69,7 +68,7 @@ def login():
             user = User()
             user.id = username
             login_user(user)
-            if username == 'rrhh':
+            if username == 'admin':
                 return redirect(url_for('view_data'))
             return redirect(url_for('comment'))
         else:
@@ -109,7 +108,7 @@ def success():
 @app.route('/view_data')
 @login_required
 def view_data():
-    if current_user.id == 'rrhh':
+    if current_user.id == 'admin':
         data = get_all_data_from_sheet()
         return render_template('view_data.html', data=data)
     flash("Acceso no autorizado.", "error")
@@ -118,7 +117,7 @@ def view_data():
 @app.route('/download_excel')
 @login_required
 def download_excel():
-    if current_user.id != 'rrhh':
+    if current_user.id != 'admin':
         return redirect(url_for('login'))
 
     # Obtiene los datos de Google Sheets
