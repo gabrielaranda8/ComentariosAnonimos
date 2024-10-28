@@ -4,3 +4,5 @@ gspread
 oauth2client
 Werkzeug==2.3.7
 gunicorn==21.2.0
+xlsxwriter
+pandas

@@ -1,3 +1,4 @@
+<!-- templates/view_data.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,50 +14,72 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column; /* Alinea los elementos en columna */
             height: 100vh;
             margin: 0;
         }
         .container {
-            background-color: #6a5acd;
-            color: #fff;
+            background-color: #6a5acd; /* Color de fondo del contenedor */
+            color: #fff; /* Color del texto dentro del contenedor */
             border-radius: 10px;
             padding: 20px;
             width: 90%;
-            max-width: 1200px;
-            max-height: 80vh; /* Limita el alto del contenedor */
-            overflow: auto; /* Añade barra de desplazamiento si es necesario */
+            max-width: 1200px; /* Ancho máximo */
+            max-height: 80vh; /* Altura máxima */
+            overflow: auto; /* Permite desplazamiento si hay mucho contenido */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         h1 {
             text-align: center;
             margin-top: 0;
         }
+        .button-container {
+            display: flex;
+            justify-content: center; /* Centra los botones */
+            margin-top: 20px; /* Espacio entre la tabla y los botones */
+            width: 100%; /* Asegura que el contenedor de botones tome todo el ancho */
+        }
+        .button {
+            background-color: white; /* Fondo blanco */
+            color: #333; /* Texto negro */
+            padding: 10px 20px;
+            border: 2px solid #6a5acd; /* Borde púrpura */
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease, border-color 0.3s ease; /* Transiciones para el fondo y el borde */
+            margin: 0 10px; /* Espacio entre los botones */
+        }
+        .button:hover {
+            background-color: #ddd; /* Cambiar a gris claro al pasar el mouse */
+        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background-color: #fff;
+            background-color: #fff; /* Color de fondo de la tabla */
             border-radius: 5px;
             overflow: hidden;
-            color: #333; /* Color del texto de los datos */
+            color: #333; /* Texto negro en la tabla */
         }
         th, td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: center;
-            white-space: nowrap; /* Mantiene texto en una sola línea */
+            white-space: nowrap; /* Evita saltos de línea en los encabezados */
             overflow: hidden;
-            text-overflow: ellipsis; /* Trunca texto largo con puntos suspensivos */
-            max-width: 200px; /* Limita el ancho de cada celda */
+            text-overflow: ellipsis; /* Elipsis para texto largo */
+            max-width: 200px; /* Ancho máximo de las celdas */
         }
         td {
-            white-space: normal; /* Permite salto de línea en celdas */
-            overflow-wrap: break-word; /* Ajusta palabras largas para que salten de línea */
-            color: #333; /* Color negro para texto en celdas de datos */
+            white-space: normal; /* Permite saltos de línea en los datos */
+            overflow-wrap: break-word; /* Rompe las palabras largas */
+            color: #333; /* Texto negro en las celdas */
         }
         th {
-            background-color: #574b90;
-            color: #fff;
+            background-color: #574b90; /* Color de fondo de los encabezados */
+            color: #fff; /* Texto blanco en los encabezados */
         }
         .no-data {
             text-align: center;
@@ -67,32 +90,42 @@
 <body>
     <div class="container">
         <h1>Datos de Denuncias</h1>
-        
-        {% if data %}
-            <table>
-                <thead>
-                    <tr>
-                        <!-- Renderiza todos los encabezados de las columnas -->
-                        {% for header in data[0].keys() %}
-                            <th>{{ header }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Renderiza todas las filas de datos -->
-                    {% for row in data %}
-                    <tr>
-                        {% for cell in row.values() %}
-                            <td>{{ cell }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p class="no-data">No hay datos disponibles para mostrar.</p>
-        {% endif %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Sector</th>
+                    <th>Denunciado</th>
+                    <th>Teléfono Denunciante</th>
+                    <th>Correo Denunciante</th>
+                    <th>Detalle de la Denuncia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row['FECHA DENUNCIA'] }}</td>
+                    <td>{{ row['SECTOR'] }}</td>
+                    <td>{{ row['DENUNCIADO'] }}</td>
+                    <td>{{ row['TELEFONO DENUNCIANTE'] }}</td>
+                    <td>{{ row['CORREO DENUNCIANTE'] }}</td>
+                    <td>{{ row['DETALLE DE LA DENUNCIA'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="button-container">
+        <form action="{{ url_for('download_excel') }}" method="post">
+            <button class="button" type="submit">Descargar Excel</button>
+        </form>
+        <form action="{{ url_for('comment') }}" method="get">
+            <button class="button" type="submit">Volver a Inicio</button>
+        </form>
     </div>
 </body>
 </html>
+
+
+
 

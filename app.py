@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import xlsxwriter
+import pandas as pd
+import io
 import os
 import json
 
@@ -54,6 +57,7 @@ def user_loader(username):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    logout_user()  # Cierra la sesión activa, si hay una
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -106,6 +110,24 @@ def view_data():
         return render_template('view_data.html', data=data)
     flash("Acceso no autorizado.", "error")
     return redirect(url_for('login'))
+
+@app.route('/download_excel')
+@login_required
+def download_excel():
+    if current_user.id != 'rrhh':
+        return redirect(url_for('login'))
+
+    # Obtiene los datos de Google Sheets
+    data = get_all_data_from_sheet()
+    
+    # Crea un DataFrame de pandas y convierte a Excel
+    df = pd.DataFrame(data)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Denuncias')
+    
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="denuncias.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 def get_all_data_from_sheet():
     # Conectarse y obtener datos de Google Sheets
