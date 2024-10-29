@@ -132,6 +132,28 @@ def download_excel():
     output.seek(0)
     return send_file(output, as_attachment=True, download_name="denuncias.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+@app.route('/update_status', methods=['POST'])
+@login_required
+def update_status():
+    estado = request.form['estado']
+    row_id = request.form['row_id']
+    
+    # Conectarse a Google Sheets y actualizar el estado
+    try:
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
+
+        # Actualiza la celda del estado de la fila correspondiente
+        sheet.update_cell(int(row_id) + 2, 8, estado)  # +2 por el encabezado y porque las filas comienzan en 1
+
+        flash("Estado actualizado exitosamente.", "success")
+    except Exception as e:
+        flash("Error al actualizar el estado: {}".format(str(e)), "error")
+    
+    return redirect(url_for('view_data'))
+
 def get_all_data_from_sheet():
     try:
         # Conectarse y obtener datos de Google Sheets
@@ -157,7 +179,7 @@ def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     sheet = client.open_by_key(sheet_path).sheet1
 
     # Inserta la denuncia en la siguiente fila disponible
-    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle])
+    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle, "Sin ver"])
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
