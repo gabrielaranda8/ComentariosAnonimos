@@ -70,7 +70,7 @@ def login():
             login_user(user)
             if username == 'admin':
                 return redirect(url_for('view_data'))
-            return redirect(url_for('comment'))
+            return redirect(url_for('dashboard'))  # Cambiar a dashboard
         else:
             flash("Usuario o contraseña incorrectos. Intenta de nuevo.", "error")
     return render_template('login.html')
@@ -154,6 +154,27 @@ def update_status():
     
     return redirect(url_for('view_data'))
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/track_denuncia', methods=['GET', 'POST'])
+@login_required
+def track_denuncia():
+    data = None
+    error = None  # Inicializa error para capturar mensajes de fallo
+
+    if request.method == 'POST':
+        denuncia_id = request.form['denuncia_id']
+        data = find_denuncia_by_id(denuncia_id)  # Busca la denuncia en Google Sheets
+
+        # Verifica si se encontraron datos
+        if not data:
+            error = "No se encontró ninguna denuncia con ese ID."
+
+    return render_template('track_denuncia.html', data=data, error=error)
+
 def get_all_data_from_sheet():
     try:
         # Conectarse y obtener datos de Google Sheets
@@ -180,6 +201,31 @@ def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
 
     # Inserta la denuncia en la siguiente fila disponible
     sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle, "Sin ver"])
+
+def find_denuncia_by_id(denuncia_id):
+    try:
+        # Conectar a Google Sheets y obtener datos
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
+        
+        # Obtener todos los registros
+        records = sheet.get_all_records(empty2zero=False, head=1)
+
+        # Busca la denuncia por el ID especificado
+        for record in records:
+            # Asegúrate de que el ID coincida y no tenga espacios adicionales
+            if str(record.get('ID DENUNCIA', '')).strip() == str(denuncia_id).strip():
+                return record  # Devuelve la denuncia si la encuentra
+
+        print("Denuncia no encontrada.")
+        return None  # Si no se encuentra, devuelve None
+    except Exception as e:
+        print("Error al conectarse a Google Sheets:", e)
+        flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
+        return None
+
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

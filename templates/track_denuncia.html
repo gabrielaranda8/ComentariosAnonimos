@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Denuncia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #6a5acd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            color: #fff;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #fff;
+            color: #6a5acd;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #e6e6e6;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #fff;
+            color: #333;
+            border-radius: 5px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #574b90;
+            color: #fff;
+        }
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-container form {
+            margin: 0;
+        }
+        .button {
+            padding: 10px;
+            background-color: #fff;
+            color: #6a5acd;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #e6e6e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buscar Denuncia</h1>
+        <form method="POST" action="/track_denuncia">
+            <input type="text" name="denuncia_id" placeholder="ID de Denuncia" required>
+            <button type="submit">Buscar Denuncia</button>
+        </form>
+        {% if data %}
+            <h2>Detalles de la Denuncia:</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha de Carga</th>
+                        <th>Fecha del Acto</th>
+                        <th>Sector</th>
+                        <th>Denunciado</th>
+                        <th>Teléfono Denunciante</th>
+                        <th>Correo Denunciante</th>
+                        <th>Detalle de la Denuncia</th>
+                        <th>Estado de la Denuncia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ data['FECHA DENUNCIA'] }}</td>
+                        <td>{{ data['FECHA DEL ACTO'] }}</td>
+                        <td>{{ data['SECTOR'] }}</td>
+                        <td>{{ data['DENUNCIADO'] }}</td>
+                        <td>{{ data['TELEFONO DENUNCIANTE'] }}</td>
+                        <td>{{ data['CORREO DENUNCIANTE'] }}</td>
+                        <td>{{ data['DETALLE DE LA DENUNCIA'] }}</td>
+                        <td>{{ data['ESTADO'] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% elif error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+    </div>
+    <div class="button-container">
+        <form action="{{ url_for('logout') }}" method="get">
+            <button class="button" type="submit">Volver a Inicio</button>
+        </form>
+    </div>
+</body>
+</html>
+
