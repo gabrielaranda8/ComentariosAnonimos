@@ -68,6 +68,28 @@
             background-color: #574b90;
             color: #fff;
         }
+        td.fecha-acto {
+            background-color: #d3d3d3;
+        }
+        /* Estilos para los estados */
+        .status-sin-ver {
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .status-vista {
+            background-color: yellow;
+            color: black;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .status-cerrada {
+            background-color: green;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
         .button-container {
             margin-top: 20px;
             display: flex;
@@ -92,6 +114,51 @@
         .button:hover {
             background-color: #e6e6e6;
         }
+        /* Estilos para el botón de comentario */
+        .comment-button {
+            padding: 5px 10px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .comment-button:hover {
+            background-color: #574b90;
+        }
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -108,25 +175,35 @@
                 <thead>
                     <tr>
                         <th>Fecha de Carga</th>
-                        <th>Fecha del Acto</th>
+                        <th class="fecha-acto">Fecha del Acto</th>
                         <th>Sector</th>
                         <th>Denunciado</th>
                         <th>Teléfono Denunciante</th>
                         <th>Correo Denunciante</th>
                         <th>Detalle de la Denuncia</th>
                         <th>Estado de la Denuncia</th>
+                        <th>Consultas</th>
+                        <th>Agregar Comentario</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{{ data['FECHA DENUNCIA'] }}</td>
-                        <td>{{ data['FECHA DEL ACTO'] }}</td>
+                        <td class="fecha-acto">{{ data['FECHA DEL ACTO'] }}</td>
                         <td>{{ data['SECTOR'] }}</td>
                         <td>{{ data['DENUNCIADO'] }}</td>
                         <td>{{ data['TELEFONO DENUNCIANTE'] }}</td>
                         <td>{{ data['CORREO DENUNCIANTE'] }}</td>
                         <td>{{ data['DETALLE DE LA DENUNCIA'] }}</td>
-                        <td>{{ data['ESTADO'] }}</td>
+                        <td>
+                            <div class="status-{{ data['ESTADO'].lower().replace(' ', '-') }}">
+                                {{ data['ESTADO'] }}
+                            </div>
+                        </td>
+                        <td>{{ data['CONSULTAS'] }}</td>
+                        <td>
+                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Comentario</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -140,6 +217,34 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal para agregar comentario -->
+    <div id="comment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCommentModal()">&times;</span>
+            <h2>Agregar Comentario</h2>
+            <form id="comment-form" action="{{ url_for('add_comment') }}" method="post">
+                <label for="comentario">Escribe tu comentario:</label>
+                <textarea name="comentario" id="comentario" rows="5" required></textarea>
+                <input type="hidden" name="row_id" id="comment-row-id" value="">
+                <button type="submit">Guardar Comentario</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.open-comment-modal').forEach(button => {
+            button.addEventListener('click', () => {
+                const rowId = button.getAttribute('data-row-id');
+                document.getElementById('comment-row-id').value = rowId;
+                document.getElementById('comment-modal').style.display = 'flex';
+            });
+        });
+
+        function closeCommentModal() {
+            document.getElementById('comment-modal').style.display = 'none';
+        }
+    </script>
+
 </body>
 </html>
-
