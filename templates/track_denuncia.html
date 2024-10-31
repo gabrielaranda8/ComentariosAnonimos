@@ -30,6 +30,20 @@
             flex-direction: column;
             align-items: center;
         }
+        .flash-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* Ocultar por defecto */
+        }
+        .flash-message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .flash-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
         form {
             width: 100%;
             max-width: 500px;
@@ -164,6 +178,18 @@
 <body>
     <div class="container">
         <h1>Buscar Denuncia</h1>
+
+        <!-- Mensaje de flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}" style="display: block;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         <form method="POST" action="/track_denuncia">
             <input type="text" name="denuncia_id" placeholder="ID de Denuncia" required>
             <button type="submit">Buscar Denuncia</button>

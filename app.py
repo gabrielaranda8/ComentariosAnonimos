@@ -8,6 +8,8 @@ import pandas as pd
 import io
 import os
 import json
+import random
+import string
 
 # Obtener la ruta del archivo de credenciales desde una variable de entorno
 sheet_path = os.environ.get('SHEET_PATH')
@@ -86,11 +88,15 @@ def comment():
         telefono = request.form.get('telefono', '')  # Campo opcional
         email = request.form.get('email', '')        # Campo opcional
         detalle = request.form['detalle']
+        
+        # Generar un ID aleatorio
+        seguimiento_id = generate_random_id()
 
         # Inserta los datos en Google Sheets
-        save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle)
+        save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle, seguimiento_id)
 
-        return redirect(url_for('success'))
+        # Pasar el ID a la plantilla de éxito
+        return render_template('success.html', seguimiento_id=seguimiento_id)
 
     return render_template('comment.html')
 
@@ -190,8 +196,7 @@ def add_comment():
         
         # Encontrar la fila correspondiente al ID de denuncia en la columna 9
         id_cells = sheet.col_values(9)  # Obtener todos los valores en la columna 9
-        print(id_cells)
-        print(denuncia_id)
+
         if denuncia_id in id_cells:
             row_index = id_cells.index(denuncia_id) + 1  # Índice de la fila (sumamos 1 por el encabezado)
         else:
@@ -226,7 +231,7 @@ def get_all_data_from_sheet():
         flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
         return []
 
-def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
+def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle, seguimiento_id):
     # Autenticación y acceso a Google Sheets
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
@@ -236,7 +241,7 @@ def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     sheet = client.open_by_key(sheet_path).sheet1
 
     # Inserta la denuncia en la siguiente fila disponible
-    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle, "Sin ver"])
+    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle, "Sin ver", seguimiento_id])
 
 def find_denuncia_by_id(denuncia_id):
     try:
@@ -261,6 +266,11 @@ def find_denuncia_by_id(denuncia_id):
         print("Error al conectarse a Google Sheets:", e)
         flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
         return None
+
+def generate_random_id(length=7):
+    """Genera un ID aleatorio de un determinado largo."""
+    characters = string.ascii_letters + string.digits  # Letras y dígitos
+    return ''.join(random.choice(characters) for _ in range(length))
 
 
 if __name__ == '__main__':

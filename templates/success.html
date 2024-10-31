@@ -46,6 +46,7 @@
     <div class="container">
         <h1>¡Enviado exitosamente!</h1>
         <p>Tu denuncia ha sido enviada.</p>
+        <p>Se le fue asignado el siguiente ID de seguimiento: <strong>{{ seguimiento_id }}</strong></p>
         <form action="{{ url_for('logout') }}" method="GET">
             <button type="submit">Volver al inicio</button>
         </form>
