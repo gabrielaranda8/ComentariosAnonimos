@@ -85,6 +85,31 @@
         td.fecha-acto {
             background-color: #d3d3d3;
         }
+        td.consultas {
+            background-color: #FFD700;
+        }
+
+        .titulo-comentarios {
+            color: #ffffff; /* Color blanco, o el color que desees */
+            font-size: 24px; /* Tamaño de fuente */
+            margin-bottom: 10px; /* Espacio inferior */
+            text-align: center; /* Alineación centrada */
+        }
+        .comentario-container {
+            background-color: #6a5acd; /* Un color de fondo claro para el cuadro */
+            border: 1px solid #ccc; /* Borde gris claro */
+            border-radius: 5px; /* Bordes redondeados */
+            padding: 10px; /* Espaciado interno */
+            margin-top: 20px; /* Espaciado superior */
+            text-align: left; /* Alineación del texto */
+        }
+        .comentario {
+            background-color: #ffffff; /* Fondo blanco para el texto del comentario */
+            padding: 10px; /* Espaciado interno */
+            border-radius: 5px; /* Bordes redondeados */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+            color: black; /* Cambiado a negro para el texto del comentario */
+        }
         /* Estilos para los estados */
         .status-sin-ver {
             background-color: red;
@@ -173,6 +198,7 @@
             color: black;
             cursor: pointer;
         }
+        
     </style>
 </head>
 <body>
@@ -189,7 +215,7 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
+
         <form method="POST" action="/track_denuncia">
             <input type="text" name="denuncia_id" placeholder="ID de Denuncia" required>
             <button type="submit">Buscar Denuncia</button>
@@ -201,15 +227,15 @@
                 <thead>
                     <tr>
                         <th>Fecha de Carga</th>
-                        <th class="fecha-acto">Fecha del Acto</th>
+                        <th class="fecha-acto" style="white-space: nowrap;">Fecha del Acto</th>
                         <th>Sector</th>
                         <th>Denunciado</th>
                         <th>Teléfono Denunciante</th>
                         <th>Correo Denunciante</th>
                         <th>Detalle de la Denuncia</th>
-                        <th>Estado de la Denuncia</th>
-                        <th>Consultas</th>
-                        <th>Agregar Comentario</th>
+                        <th>Estado de Denuncia</th>
+                        <th class="consultas">Consultas para Denunciante</th>
+                        <th>Agregar o Actualizar Comentario</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -226,13 +252,21 @@
                                 {{ data['ESTADO'] }}
                             </div>
                         </td>
-                        <td>{{ data['CONSULTAS'] }}</td>
+                        <td class="consultas">{{ data['CONSULTAS'] }}</td>
                         <td>
-                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Comentario</button>
+                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar o Actualizar Comentario</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
+
+        {% if data['NUEVOS COMENTARIOS'] %}
+            <div class="comentario-container">
+                <h3 class="titulo-comentarios">Nuevo Comentario del Denunciante:</h3>
+                <div class="comentario">{{ data['NUEVOS COMENTARIOS'] }}</div>
+            </div>
+        {% endif %}  
+                
         {% elif error %}
             <p style="color: red;">{{ error }}</p>
         {% endif %}
@@ -248,12 +282,12 @@
     <div id="comment-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeCommentModal()">&times;</span>
-            <h2>Agregar Comentario</h2>
+            <h2>Agregar o Actualizar Comentario</h2>
             <form id="comment-form" action="{{ url_for('add_comment') }}" method="post">
-                <label for="comentario">Escribe tu comentario:</label>
-                <textarea name="comentario" id="comentario" rows="5" required></textarea>
+                <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu comentario:</label>
+                <textarea name="comentario" id="comentario" rows="5" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
                 <input type="hidden" name="row_id" id="comment-row-id" value="">
-                <button type="submit">Guardar Comentario</button>
+                <button type="submit" style="margin-top: 10px;">Guardar Comentario</button>
             </form>
         </div>
     </div>
