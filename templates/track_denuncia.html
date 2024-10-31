@@ -21,10 +21,18 @@
             border-radius: 10px;
             padding: 20px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1500px;
+            max-height: 90vh;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form {
+            width: 100%;
+            max-width: 500px;
         }
         input, button {
             width: 100%;
@@ -63,10 +71,12 @@
         .button-container {
             margin-top: 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            width: 100%;
         }
         .button-container form {
-            margin: 0;
+            width: 100%;
+            max-width: 200px;
         }
         .button {
             padding: 10px;
@@ -77,6 +87,7 @@
             border-radius: 5px;
             cursor: pointer;
             text-align: center;
+            width: 100%;
         }
         .button:hover {
             background-color: #e6e6e6;
@@ -90,6 +101,7 @@
             <input type="text" name="denuncia_id" placeholder="ID de Denuncia" required>
             <button type="submit">Buscar Denuncia</button>
         </form>
+        
         {% if data %}
             <h2>Detalles de la Denuncia:</h2>
             <table>
@@ -121,11 +133,12 @@
         {% elif error %}
             <p style="color: red;">{{ error }}</p>
         {% endif %}
-    </div>
-    <div class="button-container">
-        <form action="{{ url_for('logout') }}" method="get">
-            <button class="button" type="submit">Volver a Inicio</button>
-        </form>
+        
+        <div class="button-container">
+            <form action="{{ url_for('logout') }}" method="get">
+                <button class="button" type="submit">Volver a Inicio</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
