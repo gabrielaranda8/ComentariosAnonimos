@@ -8,6 +8,8 @@ import pandas as pd
 import io
 import os
 import json
+import random
+import string
 
 # Obtener la ruta del archivo de credenciales desde una variable de entorno
 sheet_path = os.environ.get('SHEET_PATH')
@@ -70,7 +72,7 @@ def login():
             login_user(user)
             if username == 'admin':
                 return redirect(url_for('view_data'))
-            return redirect(url_for('comment'))
+            return redirect(url_for('dashboard'))  # Cambiar a dashboard
         else:
             flash("Usuario o contraseña incorrectos. Intenta de nuevo.", "error")
     return render_template('login.html')
@@ -86,11 +88,15 @@ def comment():
         telefono = request.form.get('telefono', '')  # Campo opcional
         email = request.form.get('email', '')        # Campo opcional
         detalle = request.form['detalle']
+        
+        # Generar un ID aleatorio
+        seguimiento_id = generate_random_id()
 
         # Inserta los datos en Google Sheets
-        save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle)
+        save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle, seguimiento_id)
 
-        return redirect(url_for('success'))
+        # Pasar el ID a la plantilla de éxito
+        return render_template('success.html', seguimiento_id=seguimiento_id)
 
     return render_template('comment.html')
 
@@ -132,6 +138,84 @@ def download_excel():
     output.seek(0)
     return send_file(output, as_attachment=True, download_name="denuncias.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+@app.route('/update_status', methods=['POST'])
+@login_required
+def update_status():
+    estado = request.form['estado']
+    row_id = request.form['row_id']
+    
+    # Conectarse a Google Sheets y actualizar el estado
+    try:
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
+
+        # Actualiza la celda del estado de la fila correspondiente
+        sheet.update_cell(int(row_id) + 2, 8, estado)  # +2 por el encabezado y porque las filas comienzan en 1
+
+        flash("Estado actualizado exitosamente.", "success")
+    except Exception as e:
+        flash("Error al actualizar el estado: {}".format(str(e)), "error")
+    
+    return redirect(url_for('view_data'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/track_denuncia', methods=['GET', 'POST'])
+@login_required
+def track_denuncia():
+    data = None
+    error = None  # Inicializa error para capturar mensajes de fallo
+
+    if request.method == 'POST':
+        denuncia_id = request.form['denuncia_id']
+        data = find_denuncia_by_id(denuncia_id)  # Busca la denuncia en Google Sheets
+
+        # Verifica si se encontraron datos
+        if not data:
+            error = "No se encontró ninguna denuncia con ese ID."
+
+    return render_template('track_denuncia.html', data=data, error=error)
+
+# Ruta para procesar la solicitud de agregar un comentario
+@app.route('/add_comment', methods=['POST'])
+def add_comment():
+    denuncia_id = str(request.form.get('row_id'))  # ID de la denuncia
+    comentario = request.form.get('comentario')  # Comentario ingresado por el usuario
+
+    try:
+        # Configuración de Google Sheets
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
+        
+        # Encontrar la fila correspondiente al ID de denuncia en la columna 9
+        id_cells = sheet.col_values(9)  # Obtener todos los valores en la columna 9
+
+        if denuncia_id in id_cells:
+            row_index = id_cells.index(denuncia_id) + 1  # Índice de la fila (sumamos 1 por el encabezado)
+        else:
+            flash("No se encontró el ID de la denuncia.", "error")
+            print("No se encontró el ID de la denuncia.", "error")
+            return redirect(url_for('track_denuncia'))
+
+        # Columna para "NUEVOS COMENTARIOS"
+        new_comment_column = 11  # Ajusta si es necesario
+
+        # Agregar el comentario en la columna correspondiente a "NUEVOS COMENTARIOS"
+        sheet.update_cell(row_index, new_comment_column, comentario)
+        flash("Comentario agregado exitosamente.", "success")
+
+    except Exception as e:
+        flash("Error al agregar el comentario: {}".format(str(e)), "error")
+    
+    return redirect(url_for('track_denuncia'))
+
 def get_all_data_from_sheet():
     try:
         # Conectarse y obtener datos de Google Sheets
@@ -147,7 +231,7 @@ def get_all_data_from_sheet():
         flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
         return []
 
-def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
+def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle, seguimiento_id):
     # Autenticación y acceso a Google Sheets
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
@@ -157,7 +241,37 @@ def save_comment_to_sheet(fecha, sector, denunciado, telefono, email, detalle):
     sheet = client.open_by_key(sheet_path).sheet1
 
     # Inserta la denuncia en la siguiente fila disponible
-    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle])
+    sheet.append_row([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),fecha, sector, denunciado, telefono, email, detalle, "Sin ver", seguimiento_id])
+
+def find_denuncia_by_id(denuncia_id):
+    try:
+        # Conectar a Google Sheets y obtener datos
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_path, scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(sheet_path).sheet1
+        
+        # Obtener todos los registros
+        records = sheet.get_all_records(empty2zero=False, head=1)
+
+        # Busca la denuncia por el ID especificado
+        for record in records:
+            # Asegúrate de que el ID coincida y no tenga espacios adicionales
+            if str(record.get('ID DENUNCIA', '')).strip() == str(denuncia_id).strip():
+                return record  # Devuelve la denuncia si la encuentra
+
+        print("Denuncia no encontrada.")
+        return None  # Si no se encuentra, devuelve None
+    except Exception as e:
+        print("Error al conectarse a Google Sheets:", e)
+        flash("Error al conectarse a Google Sheets: {}".format(str(e)), "error")
+        return None
+
+def generate_random_id(length=7):
+    """Genera un ID aleatorio de un determinado largo."""
+    characters = string.ascii_letters + string.digits  # Letras y dígitos
+    return ''.join(random.choice(characters) for _ in range(length))
+
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
