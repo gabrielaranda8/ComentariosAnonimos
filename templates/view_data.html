@@ -254,6 +254,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>ID Denuncia</th>
                     <th>Fecha de Carga</th>
                     <th class="fecha-acto">Fecha del Acto</th>
                     <th>Sector</th>
@@ -268,6 +269,7 @@
             <tbody>
                 {% for row in data %}
                 <tr>
+                    <td>{{ row['ID DENUNCIA'] }}</td>
                     <td>{{ row['FECHA DENUNCIA'] }}</td>
                     <td class="fecha-acto">{{ row['FECHA DEL ACTO'] }}</td>
                     <td>{{ row['SECTOR'] }}</td>
