@@ -209,6 +209,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>ID Denuncia</th>
                         <th>Fecha de Carga</th>
                         <th class="fecha-acto" style="white-space: nowrap;">Fecha del Acto</th>
                         <th>Sector</th>
@@ -218,11 +219,12 @@
                         <th>Detalle de la Denuncia</th>
                         <th>Estado de Denuncia</th>
                         <th class="consultas">Consultas para Denunciante</th>
-                        <th>Agregar o Actualizar Comentario</th>
+                        <th>Agregar Consulta</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
+                        <td>{{ data['ID DENUNCIA'] }}</td>
                         <td>{{ data['FECHA DENUNCIA'] }}</td>
                         <td class="fecha-acto">{{ data['FECHA DEL ACTO'] }}</td>
                         <td>{{ data['SECTOR'] }}</td>
@@ -237,7 +239,7 @@
                         </td>
                         <td class="consultas">{{ data['CONSULTAS'] }}</td>
                         <td>
-                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar o Actualizar Comentario</button>
+                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Consulta</button>
                         </td>
                     </tr>
                 </tbody>
@@ -265,12 +267,12 @@
     <div id="comment-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeCommentModal()">&times;</span>
-            <h2>Agregar o Actualizar Comentario</h2>
+            <h2>Agregar Consulta</h2>
             <form id="comment-form" action="{{ url_for('add_comment') }}" method="post">
-                <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu comentario:</label>
+                <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu Consulta:</label>
                 <textarea name="comentario" id="comentario" rows="5" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
                 <input type="hidden" name="row_id" id="comment-row-id" value="">
-                <button type="submit" style="margin-top: 10px;">Guardar Comentario</button>
+                <button type="submit" style="margin-top: 10px;">Guardar Consulta</button>
             </form>
         </div>
     </div>

@@ -181,10 +181,12 @@ def track_denuncia():
     return render_template('track_denuncia.html', data=data, error=error)
 
 # Ruta para procesar la solicitud de agregar un comentario
+# Ruta para procesar la solicitud de agregar un comentario
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
     denuncia_id = str(request.form.get('row_id'))  # ID de la denuncia
     comentario = request.form.get('comentario')  # Comentario ingresado por el usuario
+    fecha_comentario = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Fecha actual
 
     try:
         # Configuración de Google Sheets
@@ -193,27 +195,39 @@ def add_comment():
         client = gspread.authorize(creds)
         sheet = client.open_by_key(sheet_path).sheet1
         
-        # Encontrar la fila correspondiente al ID de denuncia en la columna 9
-        id_cells = sheet.col_values(9)  # Obtener todos los valores en la columna 9
-
+        # Obtener el índice de la fila correspondiente al ID de denuncia
+        id_cells = sheet.col_values(9)  # Suponiendo que la columna 9 contiene el ID de denuncia
         if denuncia_id in id_cells:
             row_index = id_cells.index(denuncia_id) + 1  # Índice de la fila (sumamos 1 por el encabezado)
         else:
             flash("No se encontró el ID de la denuncia.", "error")
-            print("No se encontró el ID de la denuncia.", "error")
             return redirect(url_for('track_denuncia'))
 
-        # Columna para "NUEVOS COMENTARIOS"
-        new_comment_column = 11  # Ajusta si es necesario
+        # Columnas para comentarios y fechas
+        max_comments = 4
+        comment_column_start = 10  # Columna inicial para "COMENTARIO_1"
+        date_column_start = 11     # Columna inicial para "COMENTARIO_1_FECHA"
 
-        # Agregar el comentario en la columna correspondiente a "NUEVOS COMENTARIOS"
-        sheet.update_cell(row_index, new_comment_column, comentario)
-        flash("Comentario agregado exitosamente.", "success")
+        # Buscar una columna vacía para el nuevo comentario
+        for i in range(max_comments):
+            comment_col = comment_column_start + i * 2
+            date_col = date_column_start + i * 2
 
+            # Verificar si la celda del comentario actual está vacía
+            if not sheet.cell(row_index, comment_col).value:
+                sheet.update_cell(row_index, comment_col, comentario)
+                sheet.update_cell(row_index, date_col, fecha_comentario)
+                flash("Comentario agregado exitosamente.", "success")
+                return redirect(url_for('track_denuncia'))
+
+        # Si todas las columnas de comentarios están llenas, se envía un mensaje de error
+        flash("Se alcanzó el límite máximo de comentarios.", "error")
+        
     except Exception as e:
         flash("Error al agregar el comentario: {}".format(str(e)), "error")
     
     return redirect(url_for('track_denuncia'))
+
 
 @app.route('/ver_denuncia/<denuncia_id>', methods=['GET'])
 @login_required
