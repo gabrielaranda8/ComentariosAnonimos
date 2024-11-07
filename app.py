@@ -33,7 +33,6 @@ credentials_path = {
 }
 
 
-
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -215,6 +214,21 @@ def add_comment():
         flash("Error al agregar el comentario: {}".format(str(e)), "error")
     
     return redirect(url_for('track_denuncia'))
+
+@app.route('/ver_denuncia/<denuncia_id>', methods=['GET'])
+@login_required
+def ver_denuncia(denuncia_id):
+    # Busca la denuncia específica en Google Sheets
+    data = find_denuncia_by_id(denuncia_id)
+
+    # Verifica si la denuncia existe
+    if not data:
+        error = "No se encontró la denuncia con ese ID."
+        return render_template('error.html', error=error)
+    
+    # Renderiza la vista detallada con solo esa denuncia
+    return render_template('detalle_denuncia.html', data=data)
+
 
 def get_all_data_from_sheet():
     try:
