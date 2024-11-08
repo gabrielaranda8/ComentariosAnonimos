@@ -125,6 +125,11 @@
             cursor: pointer;
         }
 
+        /* Tooltip en las celdas de denuncia */
+        .denuncia-tooltip {
+            cursor: pointer;
+        }
+
         /* Estilos para el modal */
         .modal {
             display: flex;
@@ -181,7 +186,7 @@
             </thead>
             <tbody>
                 {% for row in data %}
-                <tr onclick="window.location='{{ url_for('ver_denuncia', denuncia_id=row['ID DENUNCIA']) }}'" style="cursor: pointer;">
+                <tr title="Ver info completa" onclick="window.location='{{ url_for('ver_denuncia', denuncia_id=row['ID DENUNCIA']) }}'" style="cursor: pointer ;">
                 <!-- <tr class="table-row" title="Ver info completa"> -->
                     <td>{{ row['ID DENUNCIA'] }}</td>
                     <td>{{ row['FECHA DENUNCIA'] }}</td>
