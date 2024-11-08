@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Denuncia</title>
+    <title>Detalle de la Denuncia</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
@@ -141,6 +141,8 @@
             margin-top: 5px;
             text-align: right;
         }
+
+
         /* Estilos para los estados */
         .status-sin-ver {
             background-color: red;
@@ -234,29 +236,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Buscar Denuncia</h1>
-
-        <!-- Mensaje de flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}" style="display: block;">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <form method="POST" action="/track_denuncia">
-            <input type="text" name="denuncia_id" placeholder="ID de Denuncia" required>
-            <button type="submit">Buscar Denuncia</button>
-        </form>
         
         {% if data %}
             <h2>Detalles de la Denuncia:</h2>
             <table>
                 <thead>
                     <tr>
+                        <th>ID Denuncia</th>
                         <th>Fecha de Carga</th>
                         <th class="fecha-acto" style="white-space: nowrap;">Fecha del Acto</th>
                         <th>Sector</th>
@@ -266,11 +252,12 @@
                         <th>Detalle de la Denuncia</th>
                         <th>Estado de Denuncia</th>
                         <th class="consultas">Ultima Consulta para Denunciante</th>
-                        <th>Agregar Comentario</th>
+                        <th>Agregar Consulta</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
+                        <td>{{ data['ID DENUNCIA'] }}</td>
                         <td>{{ data['FECHA DENUNCIA'] }}</td>
                         <td class="fecha-acto">{{ data['FECHA DEL ACTO'] }}</td>
                         <td>{{ data['SECTOR'] }}</td>
@@ -295,7 +282,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Comentario</button>
+                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Consulta</button>
                         </td>
                     </tr>
                 </tbody>
@@ -355,28 +342,33 @@
                     {% endfor %}
                 </div>
             {% endif %}
-                
-        {% elif error %}
-            <p style="color: red;">{{ error }}</p>
-        {% endif %}
-        
+
+
+
         <div class="button-container">
-            <form action="{{ url_for('logout') }}" method="get">
+            <form action="{{ url_for('logout') }}" method="get" style="margin-right: 10px;">
                 <button class="button" type="submit">Volver a Inicio</button>
             </form>
+            <form action="{{ url_for('view_data') }}" method="get">
+                <button class="button" type="submit">Volver a Todas las Denuncias</button>
+            </form>
         </div>
+
+        {% else %}
+            <p>No hay datos disponibles para esta denuncia.</p>
+        {% endif %}
     </div>
 
     <!-- Modal para agregar comentario -->
     <div id="comment-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeCommentModal()">&times;</span>
-            <h2>Agregar Comentario</h2>
-            <form id="comment-form" action="{{ url_for('add_comment') }}" method="post">
-                <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu comentario:</label>
+            <h2>Agregar Consulta</h2>
+            <form id="comment-form" action="{{ url_for('add_consult') }}" method="post">
+                <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu Consulta:</label>
                 <textarea name="comentario" id="comentario" rows="5" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
                 <input type="hidden" name="row_id" id="comment-row-id" value="">
-                <button type="submit" style="margin-top: 10px;">Guardar Comentario</button>
+                <button type="submit" style="margin-top: 10px;">Guardar Consulta</button>
             </form>
         </div>
     </div>

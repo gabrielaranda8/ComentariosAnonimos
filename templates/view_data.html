@@ -14,19 +14,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column; /* Alinea los elementos en columna */
+            flex-direction: column;
             height: 100vh;
             margin: 0;
         }
         .container {
-            background-color: #6a5acd; /* Color de fondo del contenedor */
-            color: #fff; /* Color del texto dentro del contenedor */
+            background-color: #6a5acd;
+            color: #fff;
             border-radius: 10px;
             padding: 20px;
             width: 90%;
-            max-width: 1500px; /* Ancho máximo */
-            max-height: 90vh; /* Altura máxima */
-            overflow: auto; /* Permite desplazamiento si hay mucho contenido */
+            max-width: 1500px;
+            max-height: 90vh;
+            overflow: auto;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         h1 {
@@ -58,10 +58,10 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background-color: #fff; /* Color de fondo de la tabla */
+            background-color: #fff;
             border-radius: 5px;
             overflow: hidden;
-            color: #333; /* Texto negro en la tabla */
+            color: #333;
         }
         th, td {
             padding: 10px;
@@ -78,101 +78,27 @@
             color: #333; /* Texto negro en las celdas */
         }
         th {
-            background-color: #574b90; /* Color de fondo de los encabezados */
-            color: #fff; /* Texto blanco en los encabezados */
+            background-color: #574b90;
+            color: #fff;
         }
         .no-data {
             text-align: center;
             margin-top: 20px;
         }
-
-        /* Estilos para el modal */
-        .modal {
-            display: flex; /* Usar flex para centrar */
-            justify-content: center; /* Centrar horizontalmente */
-            align-items: center; /* Centrar verticalmente */
-            position: fixed; /* Fijo para cubrir toda la pantalla */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
-            z-index: 1000; /* Asegurarse de que esté encima de todo */
-        }
-        .modal-content {
-            background-color: #fff; /* Fondo blanco */
-            padding: 20px; /* Espaciado interno */
-            border-radius: 10px; /* Esquinas redondeadas */
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra */
-            width: 300px; /* Ancho fijo */
-        }
-        .close {
-            color: #aaa; /* Color de la X */
-            float: right; /* Alinear a la derecha */
-            font-size: 28px; /* Tamaño de la X */
-            font-weight: bold; /* Negrita */
-        }
-        .close:hover,
-        .close:focus {
-            color: black; /* Cambiar color al pasar el mouse */
-            text-decoration: none; /* Sin subrayado */
-            cursor: pointer; /* Cambiar cursor al pasar el mouse */
-        }
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos de Denuncias</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #6a5acd;
-            color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            width: 90%;
-            max-width: 1500px;
-            max-height: 90vh;
-            overflow: auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        h1 {
-            text-align: center;
-            margin-top: 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            overflow: hidden;
-            color: #333;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #574b90;
-            color: #fff;
-        }
         td.fecha-acto {
             background-color: #d3d3d3; /* Color gris para la columna 'Fecha del Acto' */
         }
+
+        td button {
+            display: block; /* Coloca los botones en bloques para que estén en filas separadas */
+            margin-bottom: 10px; /* Agrega un margen inferior entre los botones */
+            width: 100%; /* Opcional: hace que los botones ocupen el ancho completo de la celda */
+        }
+
+        td button:last-child {
+            margin-bottom: 0; /* Elimina el margen inferior del último botón */
+        }
+
         /* Estilos para los estados */
         .status-sin-ver {
             background-color: red;
@@ -192,26 +118,16 @@
             padding: 5px;
             border-radius: 5px;
         }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            width: 100%;
-        }
-        .button {
-            background-color: white;
-            color: #333;
-            padding: 10px 20px;
-            border: 2px solid #6a5acd;
-            border-radius: 5px;
+
+        /* Estilo para resaltar la fila al pasar el mouse */
+        tbody tr:hover {
+            background-color: #e0e0e0;
             cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            margin: 0 10px;
         }
-        .button:hover {
-            background-color: #ddd;
+
+        /* Tooltip en las celdas de denuncia */
+        .denuncia-tooltip {
+            cursor: pointer;
         }
 
         /* Estilos para el modal */
@@ -233,6 +149,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             width: 300px;
+            text-align: center;
         }
         .close {
             color: #aaa;
@@ -246,6 +163,7 @@
             text-decoration: none;
             cursor: pointer;
         }
+
     </style>
 </head>
 <body>
@@ -254,6 +172,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>ID Denuncia</th>
                     <th>Fecha de Carga</th>
                     <th class="fecha-acto">Fecha del Acto</th>
                     <th>Sector</th>
@@ -267,7 +186,9 @@
             </thead>
             <tbody>
                 {% for row in data %}
-                <tr>
+                <tr title="Ver info completa" onclick="window.location='{{ url_for('ver_denuncia', denuncia_id=row['ID DENUNCIA']) }}'" style="cursor: pointer ;">
+                <!-- <tr class="table-row" title="Ver info completa"> -->
+                    <td>{{ row['ID DENUNCIA'] }}</td>
                     <td>{{ row['FECHA DENUNCIA'] }}</td>
                     <td class="fecha-acto">{{ row['FECHA DEL ACTO'] }}</td>
                     <td>{{ row['SECTOR'] }}</td>
@@ -297,6 +218,15 @@
         </form>
     </div>
 
+    <!-- Modal para clic en la fila -->
+    <div id="click-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeClickModal()">&times;</span>
+            <h2>Hiciste clic</h2>
+            <p>Este es un modal de prueba.</p>
+        </div>
+    </div>
+
     <!-- Modal para cambiar el estado -->
     <div id="status-modal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -317,20 +247,41 @@
 
     <script>
         document.querySelectorAll('.open-modal').forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', event => {
+                event.stopPropagation(); // Evita que se active el modal de clic en la fila
                 const rowId = button.getAttribute('data-row-id');
                 const currentStatus = button.getAttribute('data-current-status');
 
                 document.getElementById('row-id').value = rowId;
-                document.getElementById('estado').value = currentStatus; // Preselecciona el estado actual
+                document.getElementById('estado').value = currentStatus;
 
-                document.getElementById('status-modal').style.display = 'flex'; // Mostrar el modal
+                document.getElementById('status-modal').style.display = 'flex';
+            });
+        });
+
+        document.querySelectorAll('.table-row').forEach(row => {
+            row.addEventListener('click', () => {
+                document.getElementById('click-modal').style.display = 'flex';
             });
         });
 
         function closeModal() {
-            document.getElementById('status-modal').style.display = 'none'; // Ocultar el modal
+            document.getElementById('status-modal').style.display = 'none';
         }
+
+        function closeClickModal() {
+            document.getElementById('click-modal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('status-modal')) {
+                closeModal();
+            }
+            if (event.target == document.getElementById('click-modal')) {
+                closeClickModal();
+            }
+        };
     </script>
+
 </body>
 </html>
