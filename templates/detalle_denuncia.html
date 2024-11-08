@@ -91,12 +91,15 @@
         }
 
         .titulo-comentarios {
-            color: #ffffff; /* Color blanco, o el color que desees */
+            background-color: #c0c0c0; /* Fondo negro */
+            color: black; /* Letras blancas */
             font-size: 24px; /* Tamaño de fuente */
+            font-family: 'Georgia', 'Times New Roman', serif; /* Fuente más formal */
             margin-bottom: 10px; /* Espacio inferior */
             text-align: center; /* Alineación centrada */
+            padding: 10px; /* Espacio interno para que no quede pegado al borde */
+            border-radius: 5px; /* Bordes redondeados si lo deseas */
         }
-
 
         .comentario-container {
             display: flex;
@@ -106,7 +109,7 @@
             max-width: 600px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #f4f4f9;
+            background-color: #c0c0c0; /* gris WhatsApp */
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
@@ -288,7 +291,7 @@
             <!-- Historial de comentarios y consultas -->
             {% if data['COMENTARIO_1'] or data['CONSULTA_1'] %}
                 <div class="comentario-container">
-                    <h3 class="titulo-comentarios" style="color: black">Historial de Consultas y Respuestas:</h3>
+                    <h3 class="titulo-comentarios">Historial</h3>
 
                     {% set historial = [] %}
 

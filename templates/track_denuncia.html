@@ -87,28 +87,59 @@
         }
         td.consultas {
             background-color: #FFD700;
+            font-weight: bold;
         }
 
         .titulo-comentarios {
-            color: #ffffff; /* Color blanco, o el color que desees */
+            background-color: #c0c0c0; /* Fondo negro */
+            color: black; /* Letras blancas */
             font-size: 24px; /* Tamaño de fuente */
+            font-family: 'Georgia', 'Times New Roman', serif; /* Fuente más formal */
             margin-bottom: 10px; /* Espacio inferior */
             text-align: center; /* Alineación centrada */
+            padding: 10px; /* Espacio interno para que no quede pegado al borde */
+            border-radius: 5px; /* Bordes redondeados si lo deseas */
         }
+
         .comentario-container {
-            background-color: #6a5acd; /* Un color de fondo claro para el cuadro */
-            border: 1px solid #ccc; /* Borde gris claro */
-            border-radius: 5px; /* Bordes redondeados */
-            padding: 10px; /* Espaciado interno */
-            margin-top: 20px; /* Espaciado superior */
-            text-align: left; /* Alineación del texto */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #c0c0c0; /* gris WhatsApp */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
+        .respuesta, .comentario {
+            padding: 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            color: white;
+            font-size: 16px;
+            word-wrap: break-word;
+            position: relative;
+            text-align: left;
+        }
+
+        .respuesta {
+            background-color: #25D366; /* Verde WhatsApp */
+            align-self: flex-start;
+        }
+
         .comentario {
-            background-color: #ffffff; /* Fondo blanco para el texto del comentario */
-            padding: 10px; /* Espaciado interno */
-            border-radius: 5px; /* Bordes redondeados */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-            color: black; /* Cambiado a negro para el texto del comentario */
+            background-color: #333; /* Negro */
+            align-self: flex-end;
+        }
+
+        .fecha {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            text-align: right;
         }
         /* Estilos para los estados */
         .status-sin-ver {
@@ -235,7 +266,7 @@
                         <th>Detalle de la Denuncia</th>
                         <th>Estado de Denuncia</th>
                         <th class="consultas">Ultima Consulta para Denunciante</th>
-                        <th>Agregar o Actualizar Comentario</th>
+                        <th>Agregar Comentario</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -264,18 +295,66 @@
                             {% endif %}
                         </td>
                         <td>
-                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar o Actualizar Comentario</button>
+                            <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Comentario</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-        {% if data['NUEVOS COMENTARIOS'] %}
-            <div class="comentario-container">
-                <h3 class="titulo-comentarios">Nuevo Comentario del Denunciante:</h3>
-                <div class="comentario">{{ data['NUEVOS COMENTARIOS'] }}</div>
-            </div>
-        {% endif %}  
+            <!-- Historial de comentarios y consultas -->
+            {% if data['COMENTARIO_1'] or data['CONSULTA_1'] %}
+                <div class="comentario-container">
+                    <h3 class="titulo-comentarios">Historial</h3>
+
+                    {% set historial = [] %}
+
+                    <!-- Agregar la primera consulta con fecha -->
+                    {% if data['CONSULTA_1'] %}
+                        {% set historial = historial + [{'tipo': 'consulta', 'texto': data['CONSULTA_1'], 'fecha': data['CONSULTA_1_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el primer comentario con fecha -->
+                    {% if data['COMENTARIO_1'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_1'], 'fecha': data['COMENTARIO_1_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar la segunda consulta con fecha -->
+                    {% if data['CONSULTA_2'] %}
+                        {% set historial = historial + [{'tipo': 'consulta', 'texto': data['CONSULTA_2'], 'fecha': data['CONSULTA_2_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el segundo comentario con fecha -->
+                    {% if data['COMENTARIO_2'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_2'], 'fecha': data['COMENTARIO_2_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar la tercera consulta con fecha -->
+                    {% if data['CONSULTA_3'] %}
+                        {% set historial = historial + [{'tipo': 'consulta', 'texto': data['CONSULTA_3'], 'fecha': data['CONSULTA_3_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el tercer comentario con fecha -->
+                    {% if data['COMENTARIO_3'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_3'], 'fecha': data['COMENTARIO_3_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el cuarto comentario con fecha -->
+                    {% if data['COMENTARIO_4'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_4'], 'fecha': data['COMENTARIO_4_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Ordenar el historial por fecha -->
+                    {% set historial = historial | sort(attribute='fecha') %}
+
+                    <!-- Mostrar el historial de comentarios y consultas en el orden que se agregaron -->
+                    {% for item in historial %}
+                        <div class="{{ 'respuesta' if item.tipo == 'consulta' else 'comentario' }}">
+                            <p>{{ item.texto }}</p>
+                            <p class="fecha">Fecha: {{ item.fecha }}</p> <!-- Mostrar la fecha si lo deseas -->
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
                 
         {% elif error %}
             <p style="color: red;">{{ error }}</p>
@@ -292,7 +371,7 @@
     <div id="comment-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeCommentModal()">&times;</span>
-            <h2>Agregar o Actualizar Comentario</h2>
+            <h2>Agregar Comentario</h2>
             <form id="comment-form" action="{{ url_for('add_comment') }}" method="post">
                 <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu comentario:</label>
                 <textarea name="comentario" id="comentario" rows="5" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
