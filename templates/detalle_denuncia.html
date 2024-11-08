@@ -285,28 +285,62 @@
                 </tbody>
             </table>
 
-                <!-- Historial de comentarios y consultas -->
-                {% if data['COMENTARIO_1'] or data['CONSULTA_1'] %}
-                    <div class="comentario-container">
-                        <h3 class="titulo-comentarios" style="color: black">Historial de Consultas y Respuestas:</h3>
+            <!-- Historial de comentarios y consultas -->
+            {% if data['COMENTARIO_1'] or data['CONSULTA_1'] %}
+                <div class="comentario-container">
+                    <h3 class="titulo-comentarios" style="color: black">Historial de Consultas y Respuestas:</h3>
 
-                        {% for j in range(1, 4) %}
-                            {% if data['CONSULTA_' + j|string] %}
-                                <div class="respuesta">
-                                    <p>{{ data['CONSULTA_' + j|string] }}</p>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                    {% set historial = [] %}
 
-                        {% for i in range(1, 5) %}
-                            {% if data['COMENTARIO_' + i|string] %}
-                                <div class="comentario">
-                                    <p>{{ data['COMENTARIO_' + i|string] }}</p>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                    <!-- Agregar la primera consulta con fecha -->
+                    {% if data['CONSULTA_1'] %}
+                        {% set historial = historial + [{'tipo': 'consulta', 'texto': data['CONSULTA_1'], 'fecha': data['CONSULTA_1_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el primer comentario con fecha -->
+                    {% if data['COMENTARIO_1'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_1'], 'fecha': data['COMENTARIO_1_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar la segunda consulta con fecha -->
+                    {% if data['CONSULTA_2'] %}
+                        {% set historial = historial + [{'tipo': 'consulta', 'texto': data['CONSULTA_2'], 'fecha': data['CONSULTA_2_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el segundo comentario con fecha -->
+                    {% if data['COMENTARIO_2'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_2'], 'fecha': data['COMENTARIO_2_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar la tercera consulta con fecha -->
+                    {% if data['CONSULTA_3'] %}
+                        {% set historial = historial + [{'tipo': 'consulta', 'texto': data['CONSULTA_3'], 'fecha': data['CONSULTA_3_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el tercer comentario con fecha -->
+                    {% if data['COMENTARIO_3'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_3'], 'fecha': data['COMENTARIO_3_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Agregar el cuarto comentario con fecha -->
+                    {% if data['COMENTARIO_4'] %}
+                        {% set historial = historial + [{'tipo': 'comentario', 'texto': data['COMENTARIO_4'], 'fecha': data['COMENTARIO_4_FECHA']}] %}
+                    {% endif %}
+
+                    <!-- Ordenar el historial por fecha -->
+                    {% set historial = historial | sort(attribute='fecha') %}
+
+                    <!-- Mostrar el historial de comentarios y consultas en el orden que se agregaron -->
+                    {% for item in historial %}
+                        <div class="{{ 'respuesta' if item.tipo == 'consulta' else 'comentario' }}">
+                            <p>{{ item.texto }}</p>
+                            <p class="fecha">Fecha: {{ item.fecha }}</p> <!-- Mostrar la fecha si lo deseas -->
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
 
         <div class="button-container">
             <form action="{{ url_for('logout') }}" method="get" style="margin-right: 10px;">
