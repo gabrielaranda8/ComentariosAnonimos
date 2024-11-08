@@ -87,6 +87,7 @@
         }
         td.consultas {
             background-color: #FFD700;
+            font-weight: bold;
         }
 
         .titulo-comentarios {
@@ -95,21 +96,50 @@
             margin-bottom: 10px; /* Espacio inferior */
             text-align: center; /* Alineación centrada */
         }
+
+
         .comentario-container {
-            background-color: #6a5acd; /* Un color de fondo claro para el cuadro */
-            border: 1px solid #ccc; /* Borde gris claro */
-            border-radius: 5px; /* Bordes redondeados */
-            padding: 10px; /* Espaciado interno */
-            margin-top: 20px; /* Espaciado superior */
-            text-align: left; /* Alineación del texto */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
+        .respuesta, .comentario {
+            padding: 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            color: white;
+            font-size: 16px;
+            word-wrap: break-word;
+            position: relative;
+            text-align: left;
+        }
+
+        .respuesta {
+            background-color: #25D366; /* Verde WhatsApp */
+            align-self: flex-start;
+        }
+
         .comentario {
-            background-color: #ffffff; /* Fondo blanco para el texto del comentario */
-            padding: 10px; /* Espaciado interno */
-            border-radius: 5px; /* Bordes redondeados */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-            color: black; /* Cambiado a negro para el texto del comentario */
+            background-color: #333; /* Negro */
+            align-self: flex-end;
         }
+
+        .fecha {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+
         /* Estilos para los estados */
         .status-sin-ver {
             background-color: red;
@@ -218,7 +248,7 @@
                         <th>Correo Denunciante</th>
                         <th>Detalle de la Denuncia</th>
                         <th>Estado de Denuncia</th>
-                        <th class="consultas">Consultas para Denunciante</th>
+                        <th class="consultas">Ultima Consulta para Denunciante</th>
                         <th>Agregar Consulta</th>
                     </tr>
                 </thead>
@@ -237,7 +267,17 @@
                                 {{ data['ESTADO'] }}
                             </div>
                         </td>
-                        <td class="consultas">{{ data['CONSULTAS'] }}</td>
+                        <td class="consultas">
+                            {% if data['CONSULTA_3'] %}
+                                {{ data['CONSULTA_3'] }}
+                            {% elif data['CONSULTA_2'] %}
+                                {{ data['CONSULTA_2'] }}
+                            {% elif data['CONSULTA_1'] %}
+                                {{ data['CONSULTA_1'] }}
+                            {% else %}
+                                Sin consultas
+                            {% endif %}
+                        </td>
                         <td>
                             <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar Consulta</button>
                         </td>
@@ -245,22 +285,41 @@
                 </tbody>
             </table>
 
-        {% if data['NUEVOS COMENTARIOS'] %}
-            <div class="comentario-container">
-                <h3 class="titulo-comentarios">Nuevo Comentario del Denunciante:</h3>
-                <div class="comentario">{{ data['NUEVOS COMENTARIOS'] }}</div>
-            </div>
-        {% endif %}  
-                
-        {% elif error %}
-            <p style="color: red;">{{ error }}</p>
-        {% endif %}
-        
+                <!-- Historial de comentarios y consultas -->
+                {% if data['COMENTARIO_1'] or data['CONSULTA_1'] %}
+                    <div class="comentario-container">
+                        <h3 class="titulo-comentarios" style="color: black">Historial de Consultas y Respuestas:</h3>
+
+                        {% for j in range(1, 4) %}
+                            {% if data['CONSULTA_' + j|string] %}
+                                <div class="respuesta">
+                                    <p>{{ data['CONSULTA_' + j|string] }}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for i in range(1, 5) %}
+                            {% if data['COMENTARIO_' + i|string] %}
+                                <div class="comentario">
+                                    <p>{{ data['COMENTARIO_' + i|string] }}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
         <div class="button-container">
-            <form action="{{ url_for('logout') }}" method="get">
+            <form action="{{ url_for('logout') }}" method="get" style="margin-right: 10px;">
                 <button class="button" type="submit">Volver a Inicio</button>
             </form>
+            <form action="{{ url_for('view_data') }}" method="get">
+                <button class="button" type="submit">Volver a Todas las Denuncias</button>
+            </form>
         </div>
+
+        {% else %}
+            <p>No hay datos disponibles para esta denuncia.</p>
+        {% endif %}
     </div>
 
     <!-- Modal para agregar comentario -->
@@ -268,7 +327,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeCommentModal()">&times;</span>
             <h2>Agregar Consulta</h2>
-            <form id="comment-form" action="{{ url_for('add_comment') }}" method="post">
+            <form id="comment-form" action="{{ url_for('add_consult') }}" method="post">
                 <label for="comentario" style="color: black; font-size: 18px; margin-bottom: 5px; display: block;">Escribe tu Consulta:</label>
                 <textarea name="comentario" id="comentario" rows="5" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
                 <input type="hidden" name="row_id" id="comment-row-id" value="">

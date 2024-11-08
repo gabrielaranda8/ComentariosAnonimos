@@ -234,7 +234,7 @@
                         <th>Correo Denunciante</th>
                         <th>Detalle de la Denuncia</th>
                         <th>Estado de Denuncia</th>
-                        <th class="consultas">Consultas para Denunciante</th>
+                        <th class="consultas">Ultima Consulta para Denunciante</th>
                         <th>Agregar o Actualizar Comentario</th>
                     </tr>
                 </thead>
@@ -252,7 +252,17 @@
                                 {{ data['ESTADO'] }}
                             </div>
                         </td>
-                        <td class="consultas">{{ data['CONSULTAS'] }}</td>
+                        <td class="consultas">
+                            {% if data['CONSULTA_3'] %}
+                                {{ data['CONSULTA_3'] }}
+                            {% elif data['CONSULTA_2'] %}
+                                {{ data['CONSULTA_2'] }}
+                            {% elif data['CONSULTA_1'] %}
+                                {{ data['CONSULTA_1'] }}
+                            {% else %}
+                                Sin consultas
+                            {% endif %}
+                        </td>
                         <td>
                             <button class="open-comment-modal comment-button" data-row-id="{{ data['ID DENUNCIA'] }}">Agregar o Actualizar Comentario</button>
                         </td>
